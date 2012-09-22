@@ -20,4 +20,4 @@ D3DMath		An advanced library include AMaths and a matrix library using SSE2
 R3DMath		This is an advanced  library include  math library and matrix library.It using AMaths as base math library.It using  
 		_mm_rsqrt_ss instruction and  newton iterationfor for sqrt functions.It also add AMD D3Dmath it faster than SSE2 in AMD CPU.
 
-engine		An D3D + R3DMath demo.
+engine		An DXUT R3DMath demo.
