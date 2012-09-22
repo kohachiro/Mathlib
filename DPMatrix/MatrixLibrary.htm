@@ -1,0 +1,319 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+	<META NAME="Generator" CONTENT="NotePad [en] (WinNt)">
+	<meta name="Author" content="Zvi Devir">
+	<meta name="KeyWords" content="matrix 3D vector SPMatrix SPVector DPMatrix DPVector library">
+	<TITLE>Matrix Library</TITLE>
+</HEAD>
+
+<body link="#0000FF" vlink="#800080" bgcolor="#E0F0E0">
+
+<B><FONT SIZE=+2>Introduction</FONT></B>
+
+<P>On January 2000, an optimized matrix library was published in an article in 
+<A HREF="#Links">GamaSutra.com</A>.
+<BR>The article presented 4D single-precision matrix and vector classes 
+implemented using Pentium<FONT SIZE=-1><SUP>&reg;</SUP></FONT>&nbsp;III 
+Streaming SIMD (Single Instruction Multiple Data) Extensions, or SSE.
+<BR>Since then, a new processor was introduced – the Intel<FONT SIZE=-1><SUP>&reg;</SUP></FONT> 
+Pentium<FONT SIZE=-1><SUP>&reg;</SUP></FONT>&nbsp;4 processor. Its new SSE2 
+instructions are devoted to double-precision calculations. While 
+Pentium<FONT SIZE=-1><SUP>&reg;</SUP></FONT>&nbsp;III SSE register holds four 
+single-precision elements, a SSE2 register holds two double-precision elements.
+
+<P>Using the new SSE2 instructions, an enhanced version of this library was 
+written. The new library contains similar classes to those of the old library, 
+and including additional classes with the same functionality implemented using
+double-precision arithmetic.
+
+<P><B><FONT SIZE=+2>The Library</FONT></B>
+
+<P>This library includes three types of classes. Each class type has two 
+variants – a single-precision implementation and a double-precision 
+implementation. The single-precision variants are implemented using SSE 
+instructions, and are optimized for both Pentium<FONT SIZE=-1><SUP>&reg;</SUP></FONT>&nbsp;III 
+and Pentium<FONT SIZE=-1><SUP>&reg;</SUP></FONT>&nbsp;4 processors. The 
+double-precision variants are implemented using SSE2 instructions, and are 
+optimized for Pentium<FONT SIZE=-1><SUP>&reg;</SUP></FONT>&nbsp;4 processor.
+
+<P>The first type is the matrix classes, and the variants are the <CODE>SPMatrix</CODE> 
+and the <CODE>DPMatrix</CODE> classes. They implement a matrix of 4x4 elements, 
+which can represent 3D transformations in the homogenous space.
+<BR>The second type is 4-elements vector classes, and the variants are the 
+<CODE>SPVector</CODE> and the <CODE>DPVector</CODE> classes. They represent 4D 
+vectors or a 3D vectors in the homogeneous space.
+<BR>The third type is 3-elements vector classes, and the variants are the 
+<CODE>SPVector3</CODE> and the <CODE>DPVector3</CODE> classes. They represent 
+pure 3D vectors in space.
+
+<P>As all the classes are written using SSE/SSE2 instructions, all 
+instances must be allocated in a 16-bytes aligned memory address. 
+<BR>For static-allocated instances, the <A HREF="#Links">Intel<FONT SIZE=-1><SUP>&reg;</SUP></FONT>
+C/C++ Compiler</A> takes care for the alignment. However, for run-time 
+allocated instances, you have the responsibility to assure proper alignment.
+
+<P><B><FONT SIZE=+2>The Classes</B></FONT>
+
+<P><FONT SIZE=+1><B>The SPMatrix and DPMatrix classes</B></FONT>
+<BR>The <CODE>SPMatrix</CODE> class is a 4x4 matrix of <CODE>float</CODE>s 
+(single precision floating point numbers), while the <CODE>DPMatrix</CODE> 
+class is a 4x4 matrix of <CODE>double</CODE>s (double precision floating point 
+numbers).
+<BR>
+
+<DIR><TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=400>
+<TR><TD VALIGN="TOP"><DIR><CODE>
+<BR>class <B>SPMatrix</B> {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;union {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__m128 _L1, _L2, _L3, _L4;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float&nbsp;&nbsp;_11, _12, _13, _14;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float&nbsp;&nbsp;_21, _22, _23, _24;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float&nbsp;&nbsp;_31, _32, _33, _34;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float&nbsp;&nbsp; _41, _42, _43, _44;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;};
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;<I>// ...</I>
+<BR>};
+</CODE></DIR></TD></TR>
+<TR><TD VALIGN="TOP"><DIR><CODE>
+<BR>class <B>DPMatrix</B> {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;union {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__m128d _L1, _L2, _L3, _L4;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__m128d _L1a, _L1b,
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_L2a, _L2b,
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_L3a, _L3b,
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_L4a, _L4b;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;&nbsp;_11, _12, _13, _14;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;&nbsp;_21, _22, _23, _24;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;&nbsp;_31, _32, _33, _34;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;&nbsp;_41, _42, _43, _44;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;};
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;<I>// ...</I>
+<BR>};
+</CODE></DIR></TR>
+</TABLE>
+</DIR>
+
+<P>Each class contains 16 elements (<CODE>_11</CODE> to <CODE>_44</CODE>). The 
+elements are placed in four lines (<CODE>_L1</CODE> to <CODE>_L4</CODE>). For 
+the <CODE>SPMatrix</CODE> class, each line is represented as one SSE variable. 
+For the <CODE>DPMatrix</CODE> class, each line is divided into two halves and 
+each half is be represented as one SSE2 variable (<CODE>_L1a</CODE> to <CODE>_L4b</CODE>), 
+as a SSE2 register can hold only two double-precision elements.
+<BR>Data elements may be referenced by their row and column: <CODE>Mat._12</CODE> 
+is also <CODE>Mat[0][1]</CODE> or <CODE>Mat(0,1)</CODE>.
+
+<P><FONT SIZE=+1><B>The SPVector and DPVector classes</B></FONT>
+<BR>The <CODE>SPVector</CODE> class is a vector of four <CODE>float</CODE>s, 
+while the <CODE>DPVector</CODE> class is a vector of four <CODE>double</CODE>s.
+<BR>
+
+<DIR><TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=400>
+<TR><TD VALIGN="TOP"><CODE><DIR>
+<BR>class <B>SPVector</B> {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;union {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__m128 vec;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct { 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float x,y,z,w;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;};
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;<I>// ...</I>
+<BR>};
+</CODE></DIR></TD></TR>
+<TR><TD VALIGN="TOP"><CODE><DIR>
+<BR>class <B>DPVector</B> {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;union {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__m256d vec;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct { 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__m128d xy,zw;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;struct { 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;&nbsp;x,y,z,w;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;};
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;<I>// ...</I>
+<BR>};
+</CODE></DIR></TD></TR>
+</TABLE>
+</DIR>
+
+<P>Each class contains the <CODE>x</CODE>, <CODE>y</CODE>, <CODE>z</CODE> and 
+<CODE>w</CODE> elements of the vector. The <CODE>SPVector</CODE> class 
+represents all the elements as one SIMD variable. For the <CODE>DPVector</CODE> 
+class, the <CODE>x</CODE> and <CODE>y</CODE> elements are stored together in 
+the <CODE>xy</CODE> variable while the <CODE>z</CODE> and <CODE>w</CODE> 
+elements are stored together in the <CODE>zw</CODE> variable.
+<BR>Data elements may be referenced by their place: <CODE>Vec.z</CODE> is 
+also <CODE>Vec[2]</CODE> or <CODE>Vec(2)</CODE>.
+
+<P><FONT SIZE=+1><B>The SPVector3 and DPVector3 classes</B></FONT>
+<BR>The <CODE>SPVector3</CODE> and <CODE>DPVector3</CODE> classes are variants 
+of the <CODE>SPVector</CODE> and <CODE>DPVectror</CODE> classes respectively. 
+These classes do not have a <CODE>w</CODE> element, so they hold "pure" 3D 
+vectors. However, for alignment and for other reasons, the <CODE>w</CODE> 
+element, which is not used, is replaced with a spacer.
+
+<P><FONT SIZE=+1><B>Constructors &amp; Operators</B></FONT>
+
+<BR><I>Operators on SPMatrix and DPMatrix:</I>
+<DIR><TABLE CELLSPACING=0 CELLPADDING=0 WIDTH="69%">
+<TR><TD WIDTH="20%">A * B</TD><TD>matrices multiplication</TD></TR>
+<TR><TD>A &plusmn; B</TD><TD>matrices addition/subtraction</TD></TR>
+<TR><TD>&plusmn; A</TD><TD>matrix unary plus/minus</TD></TR>
+<TR><TD>A * s</TD><TD>matrix multiplication with scalar</TD></TR>
+<TR><TD>A *= B</TD><TD>matrix multiplied by matrix</TD></TR>
+<TR><TD>A *= s</TD><TD>matrix multiplied by scalar</TD></TR>
+<TR><TD>A &plusmn;= B</TD><TD>matrix added/subtracted by matrix</TD></TR>
+<TR><TD></TD><TD>matrix transpose</TD></TR>
+<TR><TD></TD><TD>matrix inverse</TD></TR>
+<TR><TD></TD><TD>matrix determinant</TD></TR>
+<TR><TD></TD><TD>matrix minimal/maximal element</TD></TR>
+</TABLE></DIR>
+
+<I>SPMatrix and DPMatrix Constructors:</I>
+<DIR><TABLE CELLSPACING=0 CELLPADDING=0 WIDTH="69%">
+<TR><TD WIDTH="20%"></TD><TD>Identity matrix</TD></TR>
+<TR><TD></TD><TD>Zero matrix</TD></TR>
+<TR><TD></TD><TD>Rotation matrices (around the X axis, Y axis and Z axis)</TD></TR>
+<TR><TD></TD><TD>Translation matrices</TD></TR>
+<TR><TD></TD><TD>Scaling matrices</TD></TR>
+</TABLE></DIR>
+
+<I>Operators on SPVector, SPVector3, DPVector and DPVector3:</I>
+<DIR><TABLE CELLSPACING=0 CELLPADDING=0 WIDTH="69%">
+<TR><TD WIDTH="20%">v * M</TD><TD>vector multiplication with matrix</TD></TR>
+<TR><TD>v * s</TD><TD>vector multiplication with scalar</TD></TR>
+<TR><TD>v * w</TD><TD>vectors dot (inner) product</TD></TR>
+<TR><TD>v % w</TD><TD>vectors cross product (in 3D)</TD></TR>
+<TR><TD>v | w</TD><TD>vectors elements product</TD></TR>
+<TR><TD>v &plusmn; w</TD><TD>vectors addition/subtraction</TD></TR>
+<TR><TD>v *= M</TD><TD>vector multiplied by matrix</TD></TR>
+<TR><TD>v *= s</TD><TD>vector multiplied by scalar</TD></TR>
+<TR><TD>v |= w</TD><TD>vector elements multiplied by vector elements</TD></TR>
+<TR><TD>v &plusmn;= w</TD><TD>vector added/subtracted by vector</TD></TR>
+<TR><TD>&plusmn; v</TD><TD>vector unary plus/minus</TD></TR>
+<TR><TD>~ v</TD><TD>normalized vector</TD></TR>
+<TR><TD></TD><TD>vector length</TD></TR>
+<TR><TD></TD><TD>vector normalization</TD></TR>
+</TABLE></DIR>
+
+<P><FONT SIZE=+2><B>Header Files</B></FONT>
+
+<P>All the <CODE>SP*</CODE> classes are declared in the <CODE>SPMatrix.h</CODE> 
+header file. 
+<BR>All the <CODE>DP*</CODE> classes are declared in the <CODE>DPMatrix.h</CODE> 
+header file. 
+<BR>Both the <CODE>SP*</CODE> and <CODE>DP*</CODE> classes are included within 
+the <CODE>Matrices.h</CODE> header file.
+
+<P>There are three different ways to use the library.
+<BR>If you need only the <CODE>SP*</CODE> classes or only the <CODE>DP*</CODE> 
+classes, you should include the appropriate header file – <CODE>SPMatrix.h</CODE> 
+or <CODE>DPMatrix.h</CODE>.
+<BR>However, if you need both the <CODE>SP*</CODE> classes and the <CODE>DP*</CODE> 
+classes at the same time, you cannot just include the two header files 
+together, as some functions share names. Instead, you should include the header 
+file <CODE>Matrices.h</CODE>. This header file includes the other two header 
+files, but removes ambiguous functions (i.e., constructors that are separated 
+only by the return value). Additionally, it declares conversion functions from 
+the <CODE>SP*</CODE> classes to the corresponding <CODE>DP*</CODE> classes, and 
+vice-versa.
+
+<P><FONT SIZE=+2><B>Examples</B></FONT>
+
+<P><FONT SIZE=+1><B>Calculation of an exponent</B></FONT> 
+<BR>The first example, in <CODE>Exponent.cpp</CODE>, demonstrates a 
+calculating of a matrix exponent.
+<P>An exponent of a real number can be calculated using a Tylor Series. 
+<BR>Similarly, an exponent of matrix <IMG SRC="M.gif" ALT="M" WIDTH=18 HEIGHT=11> 
+is defined:
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<IMG SRC="Formula1.gif" ALT="exp(M) = sum(M^n/n!)" WIDTH=202 HEIGHT=45>
+
+<P><FONT SIZE=+1><B>Calculation of square root</B></FONT>
+<BR>The second example, in <CODE>Sqrt.cpp</CODE>, demonstrates an iterative 
+method of calculating matrix square root.
+<P>An iterative numerical analysis method called the Newton-Raphson method 
+can be used to calculate a square root of a positive number. However, it can 
+also be used to calculate a square root of a matrix.
+<BR>One iteration for approximating a square root of 
+<IMG SRC="M.gif" ALT="M" WIDTH=18 HEIGHT=11> is:
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<IMG SRC="Formula2.gif" ALT="X(n+1) = 0.5*(X(n)+M*inv(X(n)))" WIDTH=286 HEIGHT=34>
+<P>Usually, this method is not recommended for the calculation of matrix square 
+root, as even if the root is reversible (which is not always true), the method 
+is highly sensitive to the rounding errors.
+<BR>However, for demonstration proposes, we may ignore the limitations.
+
+<P><FONT SIZE=+1><B>Results</B></FONT>
+<P>I compared four versions for calculating the series from both examples:
+<OL TYPE="A">
+<LI>Using single-precision scalar code (using Microsoft<FONT SIZE=-2><SUP>*</SUP></FONT> <CODE>D3DXMATRIX</CODE> class).</LI>
+<LI>Using the <CODE>SPMatrix</CODE> class.</LI>
+<LI>Using double-precision scalar code.</LI>
+<LI>Using the <CODE>DPMatrix</CODE> class.</LI>
+</OL>
+
+<P>The next table shows the average time an iteration takes for each version:
+
+<DIR><TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=540>
+<TR ALIGN=CENTER>
+	<TD WIDTH="40%"><B>Version</B></TD>
+	<TD WIDTH="30%" COLSPAN=2>Average time for<BR><B>Exponent</B></TD>
+	<TD WIDTH="30%" COLSPAN=2>Average time for<BR><B>Square Root</B></TD>
+</TR>
+<TR ALIGN=CENTER>
+	<TD ALIGN=LEFT>&nbsp;&nbsp;&nbsp;&nbsp;Single-precision scalar code</TD>
+    <TD WIDTH="15%">398</TD>
+	<TD WIDTH="15%">393</TD>
+	<TD WIDTH="15%">681</TD>
+	<TD WIDTH="15%">654</TD>
+</TR>
+<TR ALIGN=CENTER>
+	<TD ALIGN=LEFT>&nbsp;&nbsp;&nbsp;&nbsp;<CODE>SPMatrix</CODE> code</TD>
+    <TD>170</TD>
+	<TD>122</TD>
+	<TD>322</TD>
+	<TD>254</TD>
+</TR>
+<TR ALIGN=CENTER>
+	<TD ALIGN=LEFT>&nbsp;&nbsp;&nbsp;&nbsp;Double-precision scalar code</TD>
+	<TD COLSPAN=2>352</TD>
+	<TD COLSPAN=2>584</TD>
+</TR>
+<TR ALIGN=CENTER>
+	<TD ALIGN=LEFT>&nbsp;&nbsp;&nbsp;&nbsp;<CODE>DPMatrix</CODE> code</TD>
+	<TD COLSPAN=2>216</TD>
+	<TD COLSPAN=2>402</TD>
+</TR>
+</TABLE></DIR>
+
+<P>Note that using the <CODE>DPMatrix</CODE> instead of scalar code gives an 
+improvement of up to x1.6, 
+<BR>and using the <CODE>SPMatrix</CODE> instead of scalar code gives greater 
+improvement of x2.1-x3.2 !
+
+<A NAME="Links"><P><FONT SIZE=+2><B>Links</B></FONT></A>
+<UL>
+<LI><FONT SIZE=+1>Download the library <A HREF="MatLib2.zip"><B>here</B></A>!</FONT><P></LI>
+<LI>Free evaluation copy of <B>Intel<FONT SIZE=-1><SUP>&reg;</SUP></FONT> 
+C/C++ Compiler</B> can be downloaded from 
+<A HREF="http://developer.intel.com/software/products/compilers/c50/c50eval.htm">http://developer.intel.com/software/products/compilers/c50/c50eval.htm</A>.<P></LI>
+<LI>The original article was published in GamaSutra.com on 01/31/2000. You can 
+read it, after free registration, at 
+<A HREF="http://www.gamasutra.com/features/20000131/barad_01.htm">http://www.gamasutra.com/features/20000131/barad_01.htm</A>.<P></LI>
+</UL>
+
+</BODY>
+</HTML>

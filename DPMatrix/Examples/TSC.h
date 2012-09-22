@@ -1,0 +1,17 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// TSC.H
+//
+//////////////////////////////////////////////////////////////////////////////
+
+#ifndef TSC_H__
+#define TSC_H__
+
+__int64 Clock();
+
+#define StartTime(i)    clock1 = Clock();
+#define EndTime(i)      clock2 = Clock(); total##i += clock2-clock1;
+
+extern __int64 clock1, clock2;
+
+#endif
